@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:foodfleet2/pages/forgotpassword.dart';
+import 'package:foodfleet2/pages/home.dart';
+//import 'package:foodfleet2/services/auth.dart';
 import 'package:foodfleet2/pages/signup.dart';
-import 'package:foodfleet2/widget/widget_support.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -10,149 +15,225 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-  
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: SingleChildScrollView(
-      child: Container(
-        height: MediaQuery.of(context).size.height, // Altura adaptativa
-        child: Stack(
+  String email = "", password = "";
+
+  TextEditingController mailcontroller = new TextEditingController();
+  TextEditingController passwordcontroller = new TextEditingController();
+
+  final _formkey = GlobalKey<FormState>();
+
+  userLogin() async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.orangeAccent,
+            content: Text(
+              "No User Found for that Email",
+              style: TextStyle(fontSize: 18.0),
+            )));
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.orangeAccent,
+            content: Text(
+              "Wrong Password Provided by User",
+              style: TextStyle(fontSize: 18.0),
+            )));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Container(
+        child: Column(
           children: [
-            // Fondo con degradado
             Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFff5c30),
-                    Color(0xFFe74b1a),
-                  ],
-                ),
-              ),
+                width: MediaQuery.of(context).size.width,
+                child: Image.asset(
+                  "images/car.PNG",
+                  fit: BoxFit.cover,
+                )),
+            SizedBox(
+              height: 30.0,
             ),
-            // Contenedor blanco redondeado
-            Container(
-              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
-              height: MediaQuery.of(context).size.height / 2,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-              ),
-              child: Text(""),
-            ),
-            // Contenido principal
-            SingleChildScrollView( // Habilitar desplazamiento
-              child: Container(
-                margin: EdgeInsets.only(top: 60.0, left: 20.0, right: 20.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: Form(
+                key: _formkey,
                 child: Column(
                   children: [
-                    Center(
-                      child: Image.network(
-                        "https://img.freepik.com/vector-gratis/queso-hamburguesa-ilustracion-icono-vector-dibujos-animados-fuego-alimentos-objeto-icono-concepto-aislado-premium_138676-5539.jpg",
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        fit: BoxFit.cover,
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 2.0, horizontal: 30.0),
+                      decoration: BoxDecoration(
+                          color: Color(0xFFedf0f8),
+                          borderRadius: BorderRadius.circular(30)),
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please Enter E-mail';
+                          }
+                          return null;
+                        },
+                        controller: mailcontroller,
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Email",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFb2b7bf), fontSize: 18.0)),
                       ),
                     ),
-                    SizedBox(height: 50.0),
-                    Material(
-                      elevation: 5.0,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 30.0),
-                            Text(
-                              "Login",
-                              style: Appwiget.HeadlineTextFeildStyle(),
-                            ),
-                            SizedBox(height: 30.0),
-                            TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Email',
-                                hintStyle: Appwiget.semibooldTextFeildStyle(),
-                                prefixIcon: Icon(Icons.email_outlined),
-                              ),
-                            ),
-                            SizedBox(height: 30.0),
-                            TextField(
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                hintText: 'Password',
-                                hintStyle: Appwiget.semibooldTextFeildStyle(),
-                                prefixIcon: Icon(Icons.password_outlined),
-                              ),
-                            ),
-                            SizedBox(height: 20.0),
-                            Container(
-                              alignment: Alignment.topRight,
-                              child: Text(
-                                "¿Has olvidado tu contraseña?",
-                                style: Appwiget.semibooldTextFeildStyle(),
-                              ),
-                            ),
-                            SizedBox(height: 80.0),
-                            Material(
-                              elevation: 5.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                width: 200,
-                                decoration: BoxDecoration(
-                                  color: Color(0Xffff5722),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "LOGIN",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18.0,
-                                      fontFamily: 'Poppins1',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    SizedBox(
+                      height: 30.0,
                     ),
-                    SizedBox(height: 70.0),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 2.0, horizontal: 30.0),
+                      decoration: BoxDecoration(
+                          color: Color(0xFFedf0f8),
+                          borderRadius: BorderRadius.circular(30)),
+                      child: TextFormField(
+                        controller: passwordcontroller,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please Enter Password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Password",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFb2b7bf), fontSize: 18.0)),
+                   obscureText: true,   ),
+                    ),
+                    SizedBox(
+                      height: 30.0,
+                    ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignUp()),
-                        );
+                      onTap: (){
+                        if(_formkey.currentState!.validate()){
+                          setState(() {
+                            email= mailcontroller.text;
+                            password=passwordcontroller.text;
+                          });
+                        }
+                        userLogin();
                       },
-                      child: Text(
-                        "¿No tienes una cuenta? Regístrate",
-                        style: Appwiget.semibooldTextFeildStyle(),
-                      ),
+                      child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 13.0, horizontal: 30.0),
+                          decoration: BoxDecoration(
+                              color: Color(0xFF273671),
+                              borderRadius: BorderRadius.circular(30)),
+                          child: Center(
+                              child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w500),
+                          ))),
                     ),
                   ],
                 ),
               ),
             ),
+            SizedBox(
+              height: 20.0,
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgotPassword()));
+              },
+              child: Text("Forgot Password?",
+                  style: TextStyle(
+                      color: Color(0xFF8c8e98),
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500)),
+            ),
+            SizedBox(
+              height: 40.0,
+            ),
+            Text(
+              "or LogIn with",
+              style: TextStyle(
+                  color: Color(0xFF273671),
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w500),
+            ),
+            SizedBox(
+              height: 30.0,
+            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     GestureDetector(
+            //       onTap: (){
+            //         AuthMethods().signInWithGoogle(context);
+            //       },
+            //       child: Image.asset(
+            //         "images/google.png",
+            //         height: 45,
+            //         width: 45,
+            //         fit: BoxFit.cover,
+            //       ),
+            //     ),
+            //     SizedBox(
+            //       width: 30.0,
+            //     ),
+            //     GestureDetector(
+            //       onTap: (){
+            //         AuthMethods().signInWithApple();
+            //       },
+            //       child: Image.asset(
+            //         "images/apple1.png",
+            //         height: 50,
+            //         width: 50,
+            //         fit: BoxFit.cover,
+            //       ),
+            //     )
+            //   ],
+            // ),
+            // SizedBox(
+            //   height: 40.0,
+            // ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     Text("Don't have an account?",
+            //         style: TextStyle(
+            //             color: Color(0xFF8c8e98),
+            //             fontSize: 18.0,
+            //             fontWeight: FontWeight.w500)),
+            //     SizedBox(
+            //       width: 5.0,
+            //     ),
+            //     GestureDetector(
+            //       onTap: () {
+            //         Navigator.push(context,
+            //             MaterialPageRoute(builder: (context) => SignUp()));
+            //       },
+            //       child: Text(
+            //         "SignUp",
+            //         style: TextStyle(
+            //             color: Color(0xFF273671),
+            //             fontSize: 20.0,
+            //             fontWeight: FontWeight.w500),
+            //       ),
+            //     ),
+            //   ],
+            // )
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
